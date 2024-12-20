@@ -38,6 +38,13 @@ ARG DEV_MODE="false"
 ARG INCLUDE_CHROMIUM="true"
 ARG INCLUDE_FIREFOX="false"
 
+RUN echo '\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse\n\
+deb http://security.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse\n\
+'> /etc/apt/sources.list
+
 # Somehow we need python3 + build-essential on this side of the house to install node-gyp
 RUN apt-get update -qq \
     && apt-get install \
@@ -103,7 +110,8 @@ ENV LANG=C.UTF-8 \
     FLASK_APP="superset.app:create_app()" \
     PYTHONPATH="/app/pythonpath" \
     SUPERSET_HOME="/app/superset_home" \
-    SUPERSET_PORT=8088
+    SUPERSET_PORT=8088 \
+    PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
 
 RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache_superset.egg-info requirements \
     && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
@@ -126,8 +134,8 @@ COPY --chown=superset:superset scripts/check-env.py scripts/
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
-    && pip install --no-cache-dir --upgrade setuptools pip \
-    && pip install --no-cache-dir -r requirements/base.txt \
+    && pip install --no-cache-dir --upgrade -i ${PIP_INDEX_URL} setuptools pip \
+    && pip install --no-cache-dir -i ${PIP_INDEX_URL} -r requirements/base.txt \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -168,6 +176,7 @@ CMD ["/usr/bin/run-server.sh"]
 FROM lean AS dev
 
 USER root
+
 RUN apt-get update -qq \
     && apt-get install -yqq --no-install-recommends \
         libnss3 \
@@ -181,7 +190,7 @@ RUN apt-get update -qq \
         && rm -rf /var/lib/apt/lists/*
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir playwright
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple playwright
 RUN playwright install-deps
 
 RUN if [ "$INCLUDE_CHROMIUM" = "true" ]; then \
@@ -212,7 +221,7 @@ COPY --chown=superset:superset requirements/development.txt requirements/
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
-    && pip install --no-cache-dir -r requirements/development.txt \
+    && pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple  -r requirements/development.txt \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
 

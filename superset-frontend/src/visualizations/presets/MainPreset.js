@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import SupersetChartPluginLiquid from 'superset-chart-plugin-liquid';
 import { isFeatureEnabled, FeatureFlag, Preset } from '@superset-ui/core';
 import CalendarChartPlugin from '@superset-ui/legacy-plugin-chart-calendar';
 import ChordChartPlugin from '@superset-ui/legacy-plugin-chart-chord';
@@ -32,6 +33,7 @@ import RoseChartPlugin from '@superset-ui/legacy-plugin-chart-rose';
 import SankeyChartPlugin from '@superset-ui/legacy-plugin-chart-sankey';
 import TableChartPlugin from '@superset-ui/plugin-chart-table';
 import { WordCloudChartPlugin } from '@superset-ui/plugin-chart-word-cloud';
+import { WordCloudPercentChartPlugin } from '@superset-ui/plugin-chart-word-cloud-percent';
 import WorldMapChartPlugin from '@superset-ui/legacy-plugin-chart-world-map';
 import {
   AreaChartPlugin,
@@ -137,6 +139,7 @@ export default class MainPreset extends Preset {
         new TimePivotChartPlugin().configure({ key: 'time_pivot' }),
         new TimeTableChartPlugin().configure({ key: 'time_table' }),
         new WordCloudChartPlugin().configure({ key: 'word_cloud' }),
+		new WordCloudPercentChartPlugin().configure({ key: 'word_cloud_percent' }),
         new WorldMapChartPlugin().configure({ key: 'world_map' }),
         new EchartsAreaChartPlugin().configure({
           key: 'echarts_area',
@@ -177,6 +180,7 @@ export default class MainPreset extends Preset {
         new EchartsSunburstChartPlugin().configure({ key: 'sunburst_v2' }),
         new HandlebarsChartPlugin().configure({ key: 'handlebars' }),
         new EchartsBubbleChartPlugin().configure({ key: 'bubble_v2' }),
+        new SupersetChartPluginLiquid().configure({ key: 'liquid' }),
         ...experimentalPlugins,
       ],
     });
