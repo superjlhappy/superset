@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-// import SupersetChartPluginLiquid from 'superset-chart-plugin-liquid';
 import { isFeatureEnabled, FeatureFlag, Preset } from '@superset-ui/core';
 import CalendarChartPlugin from '@superset-ui/legacy-plugin-chart-calendar';
 import ChordChartPlugin from '@superset-ui/legacy-plugin-chart-chord';
@@ -92,7 +91,7 @@ export default class MainPreset extends Preset {
     )
       ? [
           new BigNumberPeriodOverPeriodChartPlugin().configure({
-            key: 'pop_kpi',
+            key: VizType.BigNumberPeriodOverPeriod,
           }),
         ]
       : [];
@@ -101,27 +100,29 @@ export default class MainPreset extends Preset {
       name: 'Legacy charts',
       presets: [new DeckGLChartPreset()],
       plugins: [
-        new AreaChartPlugin().configure({ key: 'area' }),
-        new BarChartPlugin().configure({ key: 'bar' }),
-        new BigNumberChartPlugin().configure({ key: 'big_number' }),
-        new BigNumberTotalChartPlugin().configure({ key: 'big_number_total' }),
-        new EchartsBoxPlotChartPlugin().configure({ key: 'box_plot' }),
-        new BubbleChartPlugin().configure({ key: 'bubble' }),
-        new BulletChartPlugin().configure({ key: 'bullet' }),
-        new CalendarChartPlugin().configure({ key: 'cal_heatmap' }),
-        new ChordChartPlugin().configure({ key: 'chord' }),
-        new CompareChartPlugin().configure({ key: 'compare' }),
-        new CountryMapChartPlugin().configure({ key: 'country_map' }),
-        new DistBarChartPlugin().configure({ key: 'dist_bar' }),
-        new EventFlowChartPlugin().configure({ key: 'event_flow' }),
-        new EchartsFunnelChartPlugin().configure({ key: 'funnel' }),
-        new EchartsSankeyChartPlugin().configure({ key: 'sankey_v2' }),
-        new EchartsTreemapChartPlugin().configure({ key: 'treemap_v2' }),
-        new EchartsGaugeChartPlugin().configure({ key: 'gauge_chart' }),
-        new EchartsGraphChartPlugin().configure({ key: 'graph_chart' }),
-        new EchartsRadarChartPlugin().configure({ key: 'radar' }),
+        new AreaChartPlugin().configure({ key: VizType.LegacyArea }),
+        new BarChartPlugin().configure({ key: VizType.LegacyBar }),
+        new BigNumberChartPlugin().configure({ key: VizType.BigNumber }),
+        new BigNumberTotalChartPlugin().configure({
+          key: VizType.BigNumberTotal,
+        }),
+        new EchartsBoxPlotChartPlugin().configure({ key: VizType.BoxPlot }),
+        new BubbleChartPlugin().configure({ key: VizType.LegacyBubble }),
+        new BulletChartPlugin().configure({ key: VizType.Bullet }),
+        new CalendarChartPlugin().configure({ key: VizType.Calendar }),
+        new ChordChartPlugin().configure({ key: VizType.Chord }),
+        new CompareChartPlugin().configure({ key: VizType.Compare }),
+        new CountryMapChartPlugin().configure({ key: VizType.CountryMap }),
+        new DistBarChartPlugin().configure({ key: VizType.DistBar }),
+        new EventFlowChartPlugin().configure({ key: VizType.EventFlow }),
+        new EchartsFunnelChartPlugin().configure({ key: VizType.Funnel }),
+        new EchartsSankeyChartPlugin().configure({ key: VizType.Sankey }),
+        new EchartsTreemapChartPlugin().configure({ key: VizType.Treemap }),
+        new EchartsGaugeChartPlugin().configure({ key: VizType.Gauge }),
+        new EchartsGraphChartPlugin().configure({ key: VizType.Graph }),
+        new EchartsRadarChartPlugin().configure({ key: VizType.Radar }),
         new EchartsMixedTimeseriesChartPlugin().configure({
-          key: 'mixed_timeseries',
+          key: VizType.MixedTimeseries,
         }),
         new HeatmapChartPlugin().configure({ key: 'heatmap' }),
         new HistogramChartPlugin().configure({ key: 'histogram' }),
@@ -139,34 +140,33 @@ export default class MainPreset extends Preset {
         new TimePivotChartPlugin().configure({ key: 'time_pivot' }),
         new TimeTableChartPlugin().configure({ key: 'time_table' }),
         new WordCloudChartPlugin().configure({ key: 'word_cloud' }),
-		new WordCloudPercentChartPlugin().configure({ key: 'word_cloud_percent' }),
         new WorldMapChartPlugin().configure({ key: 'world_map' }),
         new EchartsAreaChartPlugin().configure({
-          key: 'echarts_area',
+          key: VizType.Area,
         }),
         new EchartsTimeseriesChartPlugin().configure({
-          key: 'echarts_timeseries',
+          key: VizType.Timeseries,
         }),
         new EchartsTimeseriesBarChartPlugin().configure({
-          key: 'echarts_timeseries_bar',
+          key: VizType.Bar,
         }),
         new EchartsTimeseriesLineChartPlugin().configure({
-          key: 'echarts_timeseries_line',
+          key: VizType.Line,
         }),
         new EchartsTimeseriesSmoothLineChartPlugin().configure({
-          key: 'echarts_timeseries_smooth',
+          key: VizType.SmoothLine,
         }),
         new EchartsTimeseriesScatterChartPlugin().configure({
-          key: 'echarts_timeseries_scatter',
+          key: VizType.Scatter,
         }),
         new EchartsTimeseriesStepChartPlugin().configure({
-          key: 'echarts_timeseries_step',
+          key: VizType.Step,
         }),
         new EchartsWaterfallChartPlugin().configure({
-          key: 'waterfall',
+          key: VizType.Waterfall,
         }),
-        new EchartsHeatmapChartPlugin().configure({ key: 'heatmap_v2' }),
-        new EchartsHistogramChartPlugin().configure({ key: 'histogram_v2' }),
+        new EchartsHeatmapChartPlugin().configure({ key: VizType.Heatmap }),
+        new EchartsHistogramChartPlugin().configure({ key: VizType.Histogram }),
         new SelectFilterPlugin().configure({ key: FilterPlugins.Select }),
         new RangeFilterPlugin().configure({ key: FilterPlugins.Range }),
         new TimeFilterPlugin().configure({ key: FilterPlugins.Time }),
@@ -180,7 +180,6 @@ export default class MainPreset extends Preset {
         new EchartsSunburstChartPlugin().configure({ key: 'sunburst_v2' }),
         new HandlebarsChartPlugin().configure({ key: 'handlebars' }),
         new EchartsBubbleChartPlugin().configure({ key: 'bubble_v2' }),
-        // new SupersetChartPluginLiquid().configure({ key: 'liquid' }),
         ...experimentalPlugins,
       ],
     });
