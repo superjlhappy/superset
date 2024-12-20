@@ -44,6 +44,7 @@ export default function transformProps(chartProps: ChartProps): WordCloudPercent
     sizeFrom = 0,
     sizeTo,
     sliceId,
+	showPercent,
   } = formData as WordCloudPercentFormData;
 
   const metricLabel = getMetricLabel(metric);
@@ -71,6 +72,13 @@ export default function transformProps(chartProps: ChartProps): WordCloudPercent
     text: {
       field: seriesLabel,
     },
+	metricv:
+	  typeof metricLabel === 'undefined'
+	    ? undefined
+	    : {
+	    	field: metricLabel,
+	    	type: 'nominal',
+	      },
   };
 
   return {
@@ -80,6 +88,7 @@ export default function transformProps(chartProps: ChartProps): WordCloudPercent
     rotation,
     width,
     sliceId,
+	showPercent,
     colorScheme,
   };
 }

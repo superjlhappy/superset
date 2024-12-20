@@ -36,7 +36,7 @@ const metadata = new ChartMetadata({
     'Visualizes the words in a column that appear the most often. Bigger font corresponds to higher frequency.',
   ),
   exampleGallery: [{ url: example1 }, { url: example2 }],
-  name: t('Word Cloud'),
+  name: t('Word Cloud Percent'),
   tags: [t('Categorical'), t('Comparison'), t('Density'), t('Single Metric')],
   thumbnail,
 });

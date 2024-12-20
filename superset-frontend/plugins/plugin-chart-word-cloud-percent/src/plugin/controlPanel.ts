@@ -81,6 +81,25 @@ const config: ControlPanelConfig = {
             },
           },
         ],
+		[
+			{
+			  name: 'show_percent',
+			  config: {
+				type: 'SelectControl',
+				label: t('Show Percent'),
+				choices: [
+				  ['none', t('None')],
+				  ['original_vaule', t('Original Value')],
+				  ['percent', t('Percent')],
+				  ['original_percent', t('Original Value & Percent')],
+				],
+				renderTrigger: true,
+				default: 'none',
+				clearable: false,
+				description: t('Show original vaule or percent to apply to words in the cloud'),
+			  },
+			},
+		  ],
         ['color_scheme'],
       ],
     },

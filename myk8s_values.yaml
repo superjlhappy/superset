@@ -21,7 +21,7 @@
 
 # A README is automatically generated from this file to document it, using helm-docs (see https://github.com/norwoodj/helm-docs)
 # To update it, install helm-docs and run helm-docs from the root of this chart
-
+# source file path: ./helm/values.yaml
 # -- Provide a name to override the name of the chart
 nameOverride: ~
 # -- Provide a name to override the full names of resources
@@ -52,6 +52,10 @@ serviceAccount:
 # @default -- see `values.yaml`
 bootstrapScript: |
   #!/bin/bash
+  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple \
+    psycopg2-binary==2.9.6 \
+    sqlalchemy-bigquery==1.6.1 \
+    elasticsearch-dbapi==0.2.5 &&\
   if [ ! -f ~/bootstrap ]; then echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap; fi
 
 # -- The name of the secret which we will use to generate a superset_config.py file
@@ -66,27 +70,8 @@ envFromSecrets: []
 
 # -- Extra environment variables that will be passed into pods
 extraEnv: {}
-  # Different gunicorn settings, refer to the gunicorn documentation
-  # https://docs.gunicorn.org/en/stable/settings.html#
-  # These variables are used as Flags at the gunicorn startup
-  # https://github.com/apache/superset/blob/master/docker/run-server.sh#L22
-  # Extend timeout to allow long running queries.
-  # GUNICORN_TIMEOUT: 300
-  # Increase the gunicorn worker amount, can improve performance drastically
-  # See: https://docs.gunicorn.org/en/stable/design.html#how-many-workers
   # SERVER_WORKER_AMOUNT: 4
   # WORKER_MAX_REQUESTS: 0
-  # WORKER_MAX_REQUESTS_JITTER: 0
-  # SERVER_THREADS_AMOUNT: 20
-  # GUNICORN_KEEPALIVE: 2
-  # SERVER_LIMIT_REQUEST_LINE: 0
-  # SERVER_LIMIT_REQUEST_FIELD_SIZE: 0
-
-  # OAUTH_HOME_DOMAIN: ..
-  # # If a whitelist is not set, any address that can use your OAuth2 endpoint will be able to login.
-  # #   this includes any random Gmail address if your OAuth2 Web App is set to External.
-  # OAUTH_WHITELIST_REGEX: ...
-
 # -- Extra environment variables in RAW format that will be passed into pods
 extraEnvRaw: []
   # Load DB password from other secret (e.g. for zalando operator)
@@ -110,14 +95,6 @@ extraConfigs: {}
   # import_datasources.yaml: |
   #     databases:
   #     - allow_file_upload: true
-  #       allow_ctas: true
-  #       allow_cvas: true
-  #       database_name: example-db
-  #       extra: "{\r\n    \"metadata_params\": {},\r\n    \"engine_params\": {},\r\n    \"\
-  #         metadata_cache_timeout\": {},\r\n    \"schemas_allowed_for_file_upload\": []\r\n\
-  #         }"
-  #       sqlalchemy_uri: example://example-db.local
-  #       tables: []
 
 # -- Extra files to mount on `/app/pythonpath` as secrets
 extraSecrets: {}
@@ -126,17 +103,11 @@ extraVolumes: []
   # - name: customConfig
   #   configMap:
   #     name: '{{ template "superset.fullname" . }}-custom-config'
-  # - name: additionalSecret
-  #   secret:
-  #     secretName: my-secret
-  #     defaultMode: 0600
 
 extraVolumeMounts: []
   # - name: customConfig
   #   mountPath: /mnt/config
   #   readOnly: true
-  # - name: additionalSecret:
-  #   mountPath: /mnt/secret
 
 # -- A dictionary of overrides to append at the end of superset_config.py - the name does not matter
 # WARNING: the order is not guaranteed
@@ -150,31 +121,6 @@ configOverrides:
   # enable_oauth: |
   #   from flask_appbuilder.security.manager import (AUTH_DB, AUTH_OAUTH)
   #   AUTH_TYPE = AUTH_OAUTH
-  #   OAUTH_PROVIDERS = [
-  #       {
-  #           "name": "google",
-  #           "whitelist": [ os.getenv("OAUTH_WHITELIST_REGEX", "") ],
-  #           "icon": "fa-google",
-  #           "token_key": "access_token",
-  #           "remote_app": {
-  #               "client_id": os.environ.get("GOOGLE_KEY"),
-  #               "client_secret": os.environ.get("GOOGLE_SECRET"),
-  #               "api_base_url": "https://www.googleapis.com/oauth2/v2/",
-  #               "client_kwargs": {"scope": "email profile"},
-  #               "request_token_url": None,
-  #               "access_token_url": "https://accounts.google.com/o/oauth2/token",
-  #               "authorize_url": "https://accounts.google.com/o/oauth2/auth",
-  #               "authorize_params": {"hd": os.getenv("OAUTH_HOME_DOMAIN", "")}
-  #           }
-  #       }
-  #   ]
-  #   # Map Authlib roles to superset roles
-  #   AUTH_ROLE_ADMIN = 'Admin'
-  #   AUTH_ROLE_PUBLIC = 'Public'
-  #   # Will allow user self registration, allowing to create Flask users from Authorized User
-  #   AUTH_USER_REGISTRATION = True
-  #   # The default user self registration role
-  #   AUTH_USER_REGISTRATION_ROLE = "Admin"
   # secret: |
   #   # Generate your own secret key for encryption. Use `openssl rand -base64 42` to generate a good key
   #   SECRET_KEY = 'CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET'
@@ -189,8 +135,10 @@ configMountPath: "/app/pythonpath"
 extraConfigMountPath: "/app/configs"
 
 image:
-  # repository: apachesuperset.docker.scarf.sh/apache/superset
   # repository: hub.openeeds.com/apache/superset
+  # tag: latest
+  # repository: harbor.reda-flight.com/public/superset
+  # tag: 4.1.1
   repository: harbor.reda-flight.com/public/superset
   tag: 4.0.1
   pullPolicy: IfNotPresent
@@ -218,10 +166,6 @@ ingress:
   ingressClassName: ~
   annotations: {}
     # kubernetes.io/tls-acme: "true"
-    ## Extend timeout to allow long running queries.
-    # nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-    # nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    # nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
   path: /
   pathType: ImplementationSpecific
   hosts:
@@ -233,18 +177,6 @@ ingress:
   #      - chart-example.local
 
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # The limits below will apply to all Superset components. To set individual resource limitations refer to the pod specific values below.
-  # The pod specific values will overwrite anything that is set here.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
 
 # -- Custom hostAliases for all superset pods
 ## https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import SupersetChartPluginLiquid from 'superset-chart-plugin-liquid';
+// import SupersetChartPluginLiquid from 'superset-chart-plugin-liquid';
 import { isFeatureEnabled, FeatureFlag, Preset } from '@superset-ui/core';
 import CalendarChartPlugin from '@superset-ui/legacy-plugin-chart-calendar';
 import ChordChartPlugin from '@superset-ui/legacy-plugin-chart-chord';
@@ -180,7 +180,7 @@ export default class MainPreset extends Preset {
         new EchartsSunburstChartPlugin().configure({ key: 'sunburst_v2' }),
         new HandlebarsChartPlugin().configure({ key: 'handlebars' }),
         new EchartsBubbleChartPlugin().configure({ key: 'bubble_v2' }),
-        new SupersetChartPluginLiquid().configure({ key: 'liquid' }),
+        // new SupersetChartPluginLiquid().configure({ key: 'liquid' }),
         ...experimentalPlugins,
       ],
     });

@@ -40,8 +40,15 @@ export const ROTATION = {
   random: () => Math.floor(seedRandom() * 6 - 3) * 30,
   square: () => Math.floor(seedRandom() * 2) * 90,
 };
+export const SHOWPERCENT = {
+    none: () => '',
+    original_vaule: (d: number) => '|'+ parseFloat(d.toFixed(2)).toString(),
+    percent: (d: number,totalMetrics: number) => '|' + parseFloat((d/totalMetrics * 100).toFixed(2)).toString() + '%',
+    original_percent: (d: number,totalMetrics: number) => '|'+ parseFloat(d.toFixed(2)).toString() + '(' + parseFloat((d/totalMetrics * 100).toFixed(2)).toString() + '%)',
+  };
 
 export type RotationType = keyof typeof ROTATION;
+export type ShowPercentType = keyof typeof SHOWPERCENT;
 
 export type WordCloudPercentEncoding = DeriveEncoding<WordCloudPercentEncodingConfig>;
 
@@ -51,6 +58,7 @@ type WordCloudPercentEncodingConfig = {
   fontSize: ['Numeric', number];
   fontWeight: ['Category', string | number];
   text: ['Text', string];
+  metricv: ['Numeric', number];
 };
 
 /**
@@ -59,6 +67,7 @@ type WordCloudPercentEncodingConfig = {
 export interface WordCloudPercentVisualProps {
   encoding?: Partial<WordCloudPercentEncoding>;
   rotation?: RotationType;
+  showPercent?: ShowPercentType;
 }
 
 export interface WordCloudPercentProps extends WordCloudPercentVisualProps {
@@ -77,6 +86,7 @@ export interface WordCloudPercentState {
 const defaultProps: Required<WordCloudPercentVisualProps> = {
   encoding: {},
   rotation: 'flat',
+  showPercent: 'none'
 };
 
 type FullWordCloudPercentProps = WordCloudPercentProps &
@@ -103,6 +113,7 @@ class WordCloudPercent extends PureComponent<FullWordCloudPercentProps, WordClou
       fontSize: 'Numeric',
       fontWeight: 'Category',
       text: 'Text',
+      metricv: 'Numeric',
     },
     defaultEncoding: {
       color: { value: this.props.theme.colors.grayscale.dark2 },
@@ -110,6 +121,7 @@ class WordCloudPercent extends PureComponent<FullWordCloudPercentProps, WordClou
       fontSize: { value: 20 },
       fontWeight: { value: 'bold' },
       text: { value: '' },
+      metricv: { value: 0 },
     },
   });
 
@@ -135,14 +147,15 @@ class WordCloudPercent extends PureComponent<FullWordCloudPercentProps, WordClou
   }
 
   componentDidUpdate(prevProps: WordCloudPercentProps) {
-    const { data, encoding, width, height, rotation } = this.props;
+    const { data, encoding, width, height, rotation, showPercent } = this.props;
 
     if (
       !isEqual(prevProps.data, data) ||
       !isEqual(prevProps.encoding, encoding) ||
       prevProps.width !== width ||
       prevProps.height !== height ||
-      prevProps.rotation !== rotation
+      prevProps.rotation !== rotation ||
+      prevProps.showPercent !== showPercent
     ) {
       this.update();
     }
@@ -191,7 +204,13 @@ class WordCloudPercent extends PureComponent<FullWordCloudPercentProps, WordClou
     scaleFactor: number,
     isValid: (word: Word[]) => boolean,
   ) {
-    const { data, width, height, rotation } = this.props;
+    const { data, width, height, rotation, showPercent } = this.props;
+
+    const totalMetricsArray = encoder.channels.metricv.getDomainFromDataset(data);
+    const totalMetrics: number = totalMetricsArray
+          .map(value => (typeof value === 'number' ? value : Number(value))) // Convert to number
+          .filter(value => !isNaN(value)) // Filter out NaN values
+          .reduce((total, currentValue) => total + currentValue, 0);
 
     cloudLayout()
       .size([width * scaleFactor, height * scaleFactor])
@@ -199,7 +218,7 @@ class WordCloudPercent extends PureComponent<FullWordCloudPercentProps, WordClou
       .words(data.map(d => ({ ...d })))
       .padding(5)
       .rotate(ROTATION[rotation] || ROTATION.flat)
-      .text(d => encoder.channels.text.getValueFromDatum(d))
+      .text(d => encoder.channels.text.getValueFromDatum(d) + SHOWPERCENT[showPercent](encoder.channels.metricv.getValueFromDatum(d),totalMetrics))
       .font(d =>
         encoder.channels.fontFamily.encodeDatum(
           d,
@@ -207,7 +226,7 @@ class WordCloudPercent extends PureComponent<FullWordCloudPercentProps, WordClou
         ),
       )
       .fontWeight(d => encoder.channels.fontWeight.encodeDatum(d, 'normal'))
-      .fontSize(d => encoder.channels.fontSize.encodeDatum(d, 0))
+      .fontSize(d => encoder.channels.fontSize.encodeDatum(d, 10))
       .on('end', (words: Word[]) => {
         if (isValid(words) || scaleFactor > MAX_SCALE_FACTOR) {
           if (this.isComponentMounted) {
